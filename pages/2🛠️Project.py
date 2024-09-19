@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 
 st.set_page_config(page_title="Project", page_icon="🛠️")
 # Judul Aplikasi
-st.title("Analisis Faktor Yang Mempengaruhi Keputusan Customer Membeli Rumah Menggunakan Regresi Logistik")
+st.title("Faktor Demografis dan Sosioekonomi Yang Mempengaruhi Keputusan Customer Membeli Rumah Menggunakan Model Regresi Logistik")
 
 # Upload file CSV
 uploaded_file = st.file_uploader("Unggah file CSV", type=["csv"])
