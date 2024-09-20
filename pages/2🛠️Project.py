@@ -103,22 +103,22 @@ if uploaded_file is not None:
     # Visualisasi koefisien fitur
     koefisien = model.coef_[0]
     fitur = X.columns
-    df_penting = pd.DataFrame({'Fitur': fitur, 'Nilai Koefisien': koefisien})
+    df_penting = pd.DataFrame({'Fitur': fitur, 'Skala Koefisien': koefisien})
 
     # Pisahkan koefisien positif dan negatif
-    df_positif = df_penting[df_penting['Nilai Koefisien'] > 0]
-    df_negatif = df_penting[df_penting['Nilai Koefisien'] < 0]
+    df_positif = df_penting[df_penting['Skala Koefisien'] > 0]
+    df_negatif = df_penting[df_penting['Skala Koefisien'] < 0]
 
     # Mendapatkan fitur yang paling berpengaruh untuk positif dan negatif
-    fitur_tertinggi_positif = df_positif.loc[df_positif['Nilai Koefisien'].idxmax(), 'Fitur']
-    fitur_terendah_negatif = df_negatif.loc[df_negatif['Nilai Koefisien'].idxmin(), 'Fitur']
+    fitur_tertinggi_positif = df_positif.loc[df_positif['Skala Koefisien'].idxmax(), 'Fitur']
+    fitur_terendah_negatif = df_negatif.loc[df_negatif['Skala Koefisien'].idxmin(), 'Fitur']
 
     # Plot koefisien positif dengan altair (horizontal bar chart)
     st.subheader("Variabel Yang Paling Berpengaruh Terhadap Keputusan Pembelian")
     chart_positif = alt.Chart(df_positif).mark_bar(color='steelblue').encode(
-        x=alt.X('Nilai Koefisien:Q', title='Nilai Koefisien'),
+        x=alt.X('Skala Koefisien:Q', title='Skala Koefisien'),
         y=alt.Y('Fitur:N', sort='-x', title='Fitur'),
-        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Nilai Koefisien:Q', title='Nilai Koefisien')]
+        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Skala Koefisien:Q', title='Skala Koefisien')]
     ).properties(
         title='Variabel Yang Paling Berpengaruh Terhadap Keputusan Pembelian'
     )
@@ -130,7 +130,7 @@ if uploaded_file is not None:
         dx=3,  # Jarak dari batang
         color='black'  # Warna label hitam
     ).encode(
-        text=alt.Text('Nilai Koefisien:Q', format='.2f')
+        text=alt.Text('Skala Koefisien:Q', format='.2f')
     )
 
     # Gabungkan chart batang dengan label
@@ -142,9 +142,9 @@ if uploaded_file is not None:
     # Plot koefisien negatif dengan altair (horizontal bar chart)
     st.subheader("Variabel Yang Paling Tidak Berpengaruh Terhadap Keputusan Pembelian")
     chart_negatif = alt.Chart(df_negatif).mark_bar(color='salmon').encode(
-        x=alt.X('Nilai Koefisien:Q', title='Nilai Koefisien'),
+        x=alt.X('Skala Koefisien:Q', title='Skala Koefisien'),
         y=alt.Y('Fitur:N', sort='x', title='Fitur'),
-        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Nilai Koefisien:Q', title='Nilai Koefisien')]
+        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Skala Koefisien:Q', title='Skala Koefisien')]
     ).properties(
         title='Variabel Yang Paling Tidak Berpengaruh Terhadap Keputusan Pembelian'
     )
@@ -156,7 +156,7 @@ if uploaded_file is not None:
         dx=-3,  # Jarak dari batang (ke kiri)
         color='black'  # Warna label hitam
     ).encode(
-        text=alt.Text('Nilai Koefisien:Q', format='.2f')
+        text=alt.Text('Skala Koefisien:Q', format='.2f')
     )
 
     # Gabungkan chart batang dengan label
@@ -166,7 +166,7 @@ if uploaded_file is not None:
     st.write(f"Variabel yang paling tidak berpengaruh terhadap Keputusan Pembelian adalah Variabel **{fitur_terendah_negatif}**.")
 
     if st.button("Tampilkan Detail"):
-        
+
         # Visualisasi jumlah setiap nilai untuk variabel
         st.subheader("Jumlah Setiap Nilai untuk Variabel")
         for var in variabel_kategorik + ['Klasifikasi Pendapatan', 'Dana Yang Tersedia']:
