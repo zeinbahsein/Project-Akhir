@@ -166,6 +166,7 @@ if uploaded_file is not None:
     st.write(f"Variabel yang paling tidak berpengaruh terhadap Keputusan Pembelian adalah Variabel **{fitur_terendah_negatif}**.")
 
     if st.button("Tampilkan Detail"):
+        
         # Visualisasi jumlah setiap nilai untuk variabel
         st.subheader("Jumlah Setiap Nilai untuk Variabel")
         for var in variabel_kategorik + ['Klasifikasi Pendapatan', 'Dana Yang Tersedia']:
@@ -173,7 +174,7 @@ if uploaded_file is not None:
                 # Gunakan label encoder untuk mendapatkan original categories
                 original_values = label_encoders[var].classes_
                 zein_filtered[var] = zein_filtered[var].apply(lambda x: original_values[x])
-        
+    
             color = 'steelblue' if var in df_positif['Fitur'].values else 'salmon'  # Warna sesuai koefisien
             chart = alt.Chart(zein_filtered).mark_bar(color=color).encode(
                 x=alt.X('count():Q', title='Jumlah'),
@@ -183,8 +184,19 @@ if uploaded_file is not None:
                 title=f'Jumlah Setiap Nilai untuk Variabel {var}'
             )
         
-            # Tampilkan chart
-            st.altair_chart(chart, use_container_width=True)
+            # Menambahkan label jumlah di atas setiap batang
+            label = chart.mark_text(
+                align='left',
+                baseline='middle',
+                dx=3,  # Jarak dari batang
+                color='black'  # Warna label hitam
+            ).encode(
+                text=alt.Text('count():Q', format='.0f')  # Menampilkan jumlah sebagai label
+            )
+        
+            # Gabungkan chart batang dengan label
+            st.altair_chart(chart + label, use_container_width=True)
+
 
 
    
