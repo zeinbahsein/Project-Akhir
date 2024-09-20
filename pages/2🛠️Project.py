@@ -6,8 +6,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
+st.set_page_config(page_title="Project", page_icon="🛠️")
+
 # Judul Aplikasi
-st.title("Analisis Faktor Yang Mempengaruhi Keputusan Customer Membeli Rumah Menggunakan Regresi Logistik")
+st.title("Faktor Yang Mempengaruhi Keputusan Customer Membeli Rumah Menggunakan Regresi Logistik")
 
 # Upload file CSV
 uploaded_file = st.file_uploader("Unggah file CSV", type=["csv"])
@@ -17,14 +19,23 @@ if uploaded_file is not None:
     zein = pd.read_csv(uploaded_file, delimiter=';')
 
     # Preprocessing Data
-    variabel_kategorik = ['Jenis Kelamin', 'Sumber', 'Status', 'Pekerjaan']
+    variabel_kategorik = ['Jenis Kelamin', 'Sumber Informasi', 'Status Pernikahan', 'Pekerjaan']
+    label_encoders = {}
+
+    # Encode categorical variables and store the encoders
     for var in variabel_kategorik:
         le = LabelEncoder()
         zein[var] = le.fit_transform(zein[var])
+        label_encoders[var] = le
 
     # Ubah tipe data menjadi numerik
-    zein['Pendapatan'] = zein['Pendapatan'].str.replace('.', '').str.replace(' ', '').astype(float)
-    zein['Budget'] = zein['Budget'].str.replace('.', '').str.replace(' ', '').astype(float)
+    zein['Nominal Pendapatan'] = zein['Nominal Pendapatan'].str.replace('.', '').str.replace(' ', '').astype(float)
+    zein['Dana Yang Tersedia'] = zein['Dana Yang Tersedia'].str.replace('.', '').str.replace(' ', '').astype(float)
+
+    # Klasifikasikan Pendapatan ke dalam kategori
+    bins = [0, 1000000, 3000000, 7000000, 10000000, 15000000, float('inf')]
+    labels = ["0 - 1 Juta", "1 - 3 Juta", "3 - 7 Juta", "7 - 10 Juta", "10 - 15 Juta", "Diatas 15 Juta"]
+    zein['Klasifikasi Pendapatan'] = pd.cut(zein['Nominal Pendapatan'], bins=bins, labels=labels, right=False)
 
     # Gabungkan proyek sesuai dengan permintaan
     proyek_mapping = {
@@ -58,7 +69,7 @@ if uploaded_file is not None:
     proyek_options.append("NASIONAL")  # Menambahkan opsi NASIONAL
 
     # Tambahkan filter untuk proyek
-    selected_proyek = st.selectbox("Pilih Proyek", proyek_options)
+    selected_proyek = st.selectbox("Pilih Daerah", proyek_options)
 
     # Filter data berdasarkan proyek yang dipilih
     if selected_proyek == "NASIONAL":
@@ -66,8 +77,9 @@ if uploaded_file is not None:
     else:
         zein_filtered = zein[zein['Proyek'] == selected_proyek]
 
-    X = zein_filtered[['Jenis Kelamin', 'Sumber', 'Budget', 'Status', 'Pekerjaan', 'Pendapatan']]
-    y = zein_filtered['Keputusan']
+    # Menyiapkan data untuk model
+    X = zein_filtered[['Jenis Kelamin', 'Sumber Informasi', 'Dana Yang Tersedia', 'Status Pernikahan', 'Pekerjaan', 'Nominal Pendapatan']]
+    y = zein_filtered['Keputusan Akhir']
 
     # Pisahkan data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -91,22 +103,22 @@ if uploaded_file is not None:
     # Visualisasi koefisien fitur
     koefisien = model.coef_[0]
     fitur = X.columns
-    df_penting = pd.DataFrame({'Fitur': fitur, 'Koefisien': koefisien})
+    df_penting = pd.DataFrame({'Fitur': fitur, 'Nilai Koefisien': koefisien})
 
     # Pisahkan koefisien positif dan negatif
-    df_positif = df_penting[df_penting['Koefisien'] > 0]
-    df_negatif = df_penting[df_penting['Koefisien'] < 0]
+    df_positif = df_penting[df_penting['Nilai Koefisien'] > 0]
+    df_negatif = df_penting[df_penting['Nilai Koefisien'] < 0]
 
     # Mendapatkan fitur yang paling berpengaruh untuk positif dan negatif
-    fitur_tertinggi_positif = df_positif.loc[df_positif['Koefisien'].idxmax(), 'Fitur']
-    fitur_terendah_negatif = df_negatif.loc[df_negatif['Koefisien'].idxmin(), 'Fitur']
+    fitur_tertinggi_positif = df_positif.loc[df_positif['Nilai Koefisien'].idxmax(), 'Fitur']
+    fitur_terendah_negatif = df_negatif.loc[df_negatif['Nilai Koefisien'].idxmin(), 'Fitur']
 
     # Plot koefisien positif dengan altair (horizontal bar chart)
     st.subheader("Variabel Yang Paling Berpengaruh Terhadap Keputusan Pembelian")
     chart_positif = alt.Chart(df_positif).mark_bar(color='steelblue').encode(
-        x=alt.X('Koefisien:Q', title='Koefisien'),
+        x=alt.X('Nilai Koefisien:Q', title='Nilai Koefisien'),
         y=alt.Y('Fitur:N', sort='-x', title='Fitur'),
-        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Koefisien:Q', title='Koefisien')]
+        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Nilai Koefisien:Q', title='Nilai Koefisien')]
     ).properties(
         title='Variabel Yang Paling Berpengaruh Terhadap Keputusan Pembelian'
     )
@@ -118,7 +130,7 @@ if uploaded_file is not None:
         dx=3,  # Jarak dari batang
         color='black'  # Warna label hitam
     ).encode(
-        text=alt.Text('Koefisien:Q', format='.2f')
+        text=alt.Text('Nilai Koefisien:Q', format='.2f')
     )
 
     # Gabungkan chart batang dengan label
@@ -130,9 +142,9 @@ if uploaded_file is not None:
     # Plot koefisien negatif dengan altair (horizontal bar chart)
     st.subheader("Variabel Yang Paling Tidak Berpengaruh Terhadap Keputusan Pembelian")
     chart_negatif = alt.Chart(df_negatif).mark_bar(color='salmon').encode(
-        x=alt.X('Koefisien:Q', title='Koefisien'),
+        x=alt.X('Nilai Koefisien:Q', title='Nilai Koefisien'),
         y=alt.Y('Fitur:N', sort='x', title='Fitur'),
-        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Koefisien:Q', title='Koefisien')]
+        tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Nilai Koefisien:Q', title='Nilai Koefisien')]
     ).properties(
         title='Variabel Yang Paling Tidak Berpengaruh Terhadap Keputusan Pembelian'
     )
@@ -144,7 +156,7 @@ if uploaded_file is not None:
         dx=-3,  # Jarak dari batang (ke kiri)
         color='black'  # Warna label hitam
     ).encode(
-        text=alt.Text('Koefisien:Q', format='.2f')
+        text=alt.Text('Nilai Koefisien:Q', format='.2f')
     )
 
     # Gabungkan chart batang dengan label
@@ -152,3 +164,27 @@ if uploaded_file is not None:
 
     # Tampilkan kalimat fitur paling tidak berpengaruh negatif
     st.write(f"Variabel yang paling tidak berpengaruh terhadap Keputusan Pembelian adalah Variabel **{fitur_terendah_negatif}**.")
+
+    if st.button("Tampilkan Detail"):
+        # Visualisasi jumlah setiap nilai untuk variabel
+        st.subheader("Jumlah Setiap Nilai untuk Variabel")
+        for var in variabel_kategorik + ['Klasifikasi Pendapatan', 'Dana Yang Tersedia']:
+            if var in variabel_kategorik:
+                # Gunakan label encoder untuk mendapatkan original categories
+                original_values = label_encoders[var].classes_
+                zein_filtered[var] = zein_filtered[var].apply(lambda x: original_values[x])
+        
+            color = 'steelblue' if var in df_positif['Fitur'].values else 'salmon'  # Warna sesuai koefisien
+            chart = alt.Chart(zein_filtered).mark_bar(color=color).encode(
+                x=alt.X('count():Q', title='Jumlah'),
+                y=alt.Y(f'{var}:N', sort='-x', title=var),  # Pastikan y-axis menggunakan variabel kategorikal
+                tooltip=[alt.Tooltip(f'{var}:N', title=var), alt.Tooltip('count():Q', title='Jumlah')]
+            ).properties(
+                title=f'Jumlah Setiap Nilai untuk Variabel {var}'
+            )
+        
+            # Tampilkan chart
+            st.altair_chart(chart, use_container_width=True)
+
+
+   

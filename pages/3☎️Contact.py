@@ -1,7 +1,12 @@
 import streamlit as st
 
+st.set_page_config(page_title="Contact", page_icon="☎️")
+
 def kontak_kami():
-    # Menampilkan judul di tengah
+    # Menampilkan judul Perum Perumnas di atas Kontak Kami
+    st.markdown("<h1 style='text-align: center;'>Perum Perumnas</h1>", unsafe_allow_html=True)
+
+    # Menampilkan judul Kontak Kami di tengah
     st.markdown("<h1 style='text-align: center;'>📞Kontak Kami📞</h1>", unsafe_allow_html=True)
 
     # Alamat Perusahaan
