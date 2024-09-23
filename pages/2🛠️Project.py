@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 st.set_page_config(page_title="Project", page_icon="🛠️")
 
 # Judul Aplikasi
-st.title("Faktor Yang Mempengaruhi Keputusan Customer Membeli Rumah Menggunakan Regresi Logistik")
+st.title("Faktor Yang Mempengaruhi Tingkat Keberhasilan Customer Membeli Rumah")
 
 # Upload file CSV
 uploaded_file = st.file_uploader("Unggah file CSV", type=["csv"])
@@ -114,13 +114,13 @@ if uploaded_file is not None:
     fitur_terendah_negatif = df_negatif.loc[df_negatif['Skala Koefisien'].idxmin(), 'Fitur']
 
     # Plot koefisien positif dengan altair (horizontal bar chart)
-    st.subheader("Variabel Yang Paling Berpengaruh Terhadap Keputusan Pembelian")
+    st.subheader("Variabel Yang Paling Berpengaruh Terhadap Tingkat Keberhasilan Customer Membeli Rumah")
     chart_positif = alt.Chart(df_positif).mark_bar(color='steelblue').encode(
         x=alt.X('Skala Koefisien:Q', title='Skala Koefisien'),
         y=alt.Y('Fitur:N', sort='-x', title='Fitur'),
         tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Skala Koefisien:Q', title='Skala Koefisien')]
     ).properties(
-        title='Variabel Yang Paling Berpengaruh Terhadap Keputusan Pembelian'
+        title='Variabel Yang Paling Berpengaruh Terhadap Tingkat Keberhasilan Customer Membeli Rumah'
     )
 
     # Menambahkan label untuk koefisien positif
@@ -137,16 +137,16 @@ if uploaded_file is not None:
     st.altair_chart(chart_positif + label_positif, use_container_width=True)
 
     # Tampilkan kalimat fitur paling berpengaruh positif
-    st.write(f"Variabel yang paling berpengaruh terhadap Keputusan Pembelian adalah Variabel **{fitur_tertinggi_positif}**.")
+    st.write(f"Variabel Yang Paling Berpengaruh Terhadap Tingkat Keberhasilan Customer Membeli Rumah adalah Variabel **{fitur_tertinggi_positif}**.")
 
     # Plot koefisien negatif dengan altair (horizontal bar chart)
-    st.subheader("Variabel Yang Paling Tidak Berpengaruh Terhadap Keputusan Pembelian")
+    st.subheader("Variabel Yang Paling Tidak Berpengaruh Terhadap Tingkat Keberhasilan Customer Membeli Rumah")
     chart_negatif = alt.Chart(df_negatif).mark_bar(color='salmon').encode(
         x=alt.X('Skala Koefisien:Q', title='Skala Koefisien'),
         y=alt.Y('Fitur:N', sort='x', title='Fitur'),
         tooltip=[alt.Tooltip('Fitur:N', title='Fitur'), alt.Tooltip('Skala Koefisien:Q', title='Skala Koefisien')]
     ).properties(
-        title='Variabel Yang Paling Tidak Berpengaruh Terhadap Keputusan Pembelian'
+        title='Variabel Yang Paling Tidak Berpengaruh Terhadap Tingkat Keberhasilan Customer Membeli Rumah'
     )
 
     # Menambahkan label untuk koefisien negatif
@@ -163,7 +163,7 @@ if uploaded_file is not None:
     st.altair_chart(chart_negatif + label_negatif, use_container_width=True)
 
     # Tampilkan kalimat fitur paling tidak berpengaruh negatif
-    st.write(f"Variabel yang paling tidak berpengaruh terhadap Keputusan Pembelian adalah Variabel **{fitur_terendah_negatif}**.")
+    st.write(f"Variabel yang paling tidak berpengaruh terhadap Tingkat Keberhasilan Customer Membeli Rumah adalah Variabel **{fitur_terendah_negatif}**.")
 
     if st.button("Tampilkan Detail"):
 
