@@ -66,13 +66,13 @@ if uploaded_file is not None:
 
     # Menambahkan opsi NASIONAL ke dalam proyek
     proyek_options = zein['Proyek'].unique().tolist()  # Mendapatkan opsi proyek yang unik
-    proyek_options.append("NASIONAL")  # Menambahkan opsi NASIONAL
+    proyek_options.append("SELURUH DAERAH")  # Menambahkan opsi NASIONAL
 
     # Tambahkan filter untuk proyek
     selected_proyek = st.selectbox("Pilih Daerah", proyek_options)
 
     # Filter data berdasarkan proyek yang dipilih
-    if selected_proyek == "NASIONAL":
+    if selected_proyek == "SELURUH DAERAH":
         zein_filtered = zein  # Jika NASIONAL, gunakan semua data
     else:
         zein_filtered = zein[zein['Proyek'] == selected_proyek]
