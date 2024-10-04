@@ -96,10 +96,6 @@ if uploaded_file is not None:
     # Prediksi
     y_pred = model.predict(X_test_scaled)
 
-    # Evaluasi model
-    akurasi = accuracy_score(y_test, y_pred)
-    st.write(f"Akurasi: {akurasi:.2f}")
-
     # Visualisasi koefisien fitur
     koefisien = model.coef_[0]
     fitur = X.columns
