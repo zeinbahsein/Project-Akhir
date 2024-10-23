@@ -35,7 +35,7 @@ if uploaded_file is not None:
     # Klasifikasikan Pendapatan ke dalam kategori
     bins = [0, 1000000, 3000000, 7000000, 10000000, 15000000, float('inf')]
     labels = ["0 - 1 Juta", "1 - 3 Juta", "3 - 7 Juta", "7 - 10 Juta", "10 - 15 Juta", "Diatas 15 Juta"]
-    zein['Klasifikasi Pendapatan'] = pd.cut(zein['Nominal Pendapatan'], bins=bins, labels=labels, right=False)
+    zein['Pendapatan Customer'] = pd.cut(zein['Nominal Pendapatan'], bins=bins, labels=labels, right=False)
 
     # Gabungkan proyek sesuai dengan permintaan
     proyek_mapping = {
@@ -96,10 +96,44 @@ if uploaded_file is not None:
     # Prediksi
     y_pred = model.predict(X_test_scaled)
 
-    # Evaluasi model
-    akurasi = accuracy_score(y_test, y_pred)
-    st.write(f"Akurasi: {akurasi:.2f}")
+   # Hitung jumlah nilai dari setiap kategori Klasifikasi Pendapatan
+    st.subheader("Jumlah Pendapatan Di Setiap Daerah")
 
+    # Mendapatkan jumlah nilai untuk setiap kategori di Klasifikasi Pendapatan
+    pendapatan_counts = zein_filtered['Pendapatan Customer'].value_counts()
+
+    # Mengurutkan nilai dari yang tertinggi
+    sorted_pendapatan = pendapatan_counts.sort_values(ascending=False)
+
+    # Identifikasi dua nilai tertinggi
+    top_two = sorted_pendapatan.index[:1]
+
+   # Membuat DataFrame untuk menampilkan pendapatan dalam tabel
+    data_pendapatan = {
+        'Pendapatan Customer': ['1 - 3 Juta', '3 - 7 Juta', '7 - 10 Juta', '10 - 15 Juta', 'Diatas 15 Juta'],
+        'Jumlah Customer': [
+            pendapatan_counts.get('1 - 3 Juta', 0),
+            pendapatan_counts.get('3 - 7 Juta', 0),
+            pendapatan_counts.get('7 - 10 Juta', 0),
+            pendapatan_counts.get('10 - 15 Juta', 0),
+            pendapatan_counts.get('Diatas 15 Juta', 0)
+        ]
+    }
+
+    # Konversi menjadi DataFrame
+    df_pendapatan = pd.DataFrame(data_pendapatan)
+
+    # Beri warna merah pada dua nilai tertinggi
+    def highlight_top_two(row):
+        if row['Pendapatan Customer'] in top_two:
+            return ['','background-color: green; color: white']
+        else:
+            return ['', '']
+
+    # Tampilkan tabel dengan highlight pada dua nilai tertinggi
+    st.dataframe(df_pendapatan.style.apply(highlight_top_two, axis=1))
+    
+    
     # Visualisasi koefisien fitur
     koefisien = model.coef_[0]
     fitur = X.columns
@@ -136,6 +170,8 @@ if uploaded_file is not None:
     # Gabungkan chart batang dengan label
     st.altair_chart(chart_positif + label_positif, use_container_width=True)
 
+    
+
     # Tampilkan kalimat fitur paling berpengaruh positif
     st.write(f"Variabel Yang Paling Berpengaruh Terhadap Tingkat Keberhasilan Customer Membeli Rumah adalah Variabel **{fitur_tertinggi_positif}**.")
 
@@ -169,7 +205,7 @@ if uploaded_file is not None:
 
         # Visualisasi jumlah setiap nilai untuk variabel
         st.subheader("Jumlah Setiap Nilai untuk Variabel")
-        for var in variabel_kategorik + ['Klasifikasi Pendapatan', 'Dana Yang Tersedia']:
+        for var in variabel_kategorik + ['Pendapatan Customer', 'Dana Yang Tersedia']:
             if var in variabel_kategorik:
                 # Gunakan label encoder untuk mendapatkan original categories
                 original_values = label_encoders[var].classes_
