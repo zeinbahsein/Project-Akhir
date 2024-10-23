@@ -96,6 +96,7 @@ if uploaded_file is not None:
     # Prediksi
     y_pred = model.predict(X_test_scaled)
 
+<<<<<<< HEAD
    # Hitung jumlah nilai dari setiap kategori Klasifikasi Pendapatan
     st.subheader("Jumlah Pendapatan Di Setiap Daerah")
 
@@ -134,6 +135,8 @@ if uploaded_file is not None:
     st.dataframe(df_pendapatan.style.apply(highlight_top_two, axis=1))
     
     
+=======
+>>>>>>> af486a0f209e950436399a7c9ff25f0df93160c3
     # Visualisasi koefisien fitur
     koefisien = model.coef_[0]
     fitur = X.columns
